@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 
-
 namespace GestorClub
 {
     internal class GestorClub
@@ -14,6 +13,7 @@ namespace GestorClub
         {
             LeerDatosClub();
             Menu();
+            Console.ReadLine();
         }
 
         public static void Menu()
@@ -52,6 +52,8 @@ namespace GestorClub
                 default:
                     break;
             }
+            ActualizarArchivo();
+
         }
 
         static void LeerDatosClub()
@@ -95,20 +97,61 @@ namespace GestorClub
                     Console.WriteLine("El equipo no pertenece a este club");
             }
 
-            foreach (string jugador in paresEquipoJugadores[equipo])
+        }
+
+        public static void DarDeAlta(string entrada)
+        {
+            if (entrada == "equipo")
             {
-                Console.WriteLine(jugador);
+                Console.WriteLine("Dar de alta un equipo (aún no implementado).");
             }
+            else if (entrada == "jugador")
+            {
+                ListarEquipos();
+                Console.WriteLine("Ingrese el nombre del equipo en el que desea dar de alta un jugador:");
+                string equipo = Console.ReadLine();
 
+                if (paresEquipoJugadores.ContainsKey(equipo))
+                {
+                    Console.WriteLine("Ingrese el nombre del jugador a dar de alta:");
+                    string jugador = Console.ReadLine();
+
+                    paresEquipoJugadores[equipo].Add(jugador);
+                    Console.WriteLine($"El jugador {jugador} ha sido dado de alta en el equipo {equipo}.");
+
+                }
+                else
+                {
+                    Console.WriteLine("El equipo no existe.");
+                }
+            }
         }
 
-        public static void DarDeAlta(string s)
+        public static void DarDeBaja(string entrada)
         {
 
         }
-        public static void DarDeBaja(string s)
-        {
 
+        static void ActualizarArchivo()
+        {
+            using (StreamWriter writer = new StreamWriter("../../FundacionEsplai.txt"))
+            {
+                writer.WriteLine(nombreClub);
+                foreach (var equipo in paresEquipoJugadores)
+                {
+                    string jugadoresString = "";
+                    for (int i = 0; i < equipo.Value.Count; i++)
+                    {
+                        jugadoresString += equipo.Value[i];
+                        if (i < equipo.Value.Count - 1)
+                        {
+                            jugadoresString += ",";
+                        }
+                    }
+                    writer.WriteLine($"{equipo.Key}:{jugadoresString}");
+                }
+            }
+            Console.WriteLine("Los cambios se han guardado en el archivo.");
         }
 
     }
