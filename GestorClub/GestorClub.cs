@@ -1,12 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+
 
 namespace GestorClub
 {
     internal class GestorClub
     {
+        static string nombreClub;
+        static Dictionary<string, string[]> paresEquipoJugadores = new Dictionary<string, string[]>();
+
         static void Main(string[] args)
         {
+            LeerDatosClub();
         }
+
         public static void Menu()
         {
             Console.Clear();
@@ -37,6 +45,19 @@ namespace GestorClub
             }
         }
 
+        static void LeerDatosClub()
+        {
+            string[] infoClub = File.ReadAllLines("../../FundacionEsplai.txt");
+            nombreClub = infoClub[0];
+            for (int i = 1; i < infoClub.Length; i++)
+            {
+                string nombre = infoClub[i].Split(':')[0];
+                string[] jugadores = infoClub[i].Split(':')[1].Split(',');
+
+                paresEquipoJugadores.Add(nombre, jugadores);
+            }
+        }
+
         public static void DarDeAlta(string s)
         {
 
@@ -45,5 +66,6 @@ namespace GestorClub
         {
 
         }
+
     }
 }
