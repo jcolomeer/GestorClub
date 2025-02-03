@@ -2,26 +2,31 @@
 using System.Collections.Generic;
 using System.IO;
 
+
+
 namespace GestorClub
 {
     internal class GestorClub
     {
         static string nombreClub;
         static Dictionary<string, List<string>> paresEquipoJugadores = new Dictionary<string, List<string>>();
-        static bool seguirMenu = true;
+        static bool menuActivo = true;
+        static char separadorJugadores = ';', separadorEquipo = ':';
 
         static void Main(string[] args)
         {
-            while (seguirMenu)
+            LeerDatosClub();
+
+            while (menuActivo)
             {
                 Menu();
-                Console.ReadLine();
             }
+
+            GuardarDatosClub();
         }
 
         public static void Menu()
         {
-            LeerDatosClub();
             Console.Clear();
             Console.WriteLine("1) Dar de alta un equipo");
             Console.WriteLine("2) Dar de baja un equipo");
@@ -30,22 +35,22 @@ namespace GestorClub
             Console.WriteLine("5) Listar equipos del club");
             Console.WriteLine("6) Listar jugadores de un equipo");
             Console.WriteLine("7) Guardar");
-            Console.WriteLine("8) Salir y guardar");
-            Console.WriteLine("9) Salir sin guardar");
+            Console.WriteLine("8) Salir");
+
 
             switch (Console.ReadLine())
             {
                 case "1":
-                    DarDeAlta("equipo");
+                    DarDeAltaEquipo();
                     break;
                 case "2":
-                    DarDeBaja("equipo");
+                    DarDeBajaEquipo();
                     break;
                 case "3":
-                    DarDeAlta("jugador");
+                    DarDeAltaJugador();
                     break;
                 case "4":
-                    DarDeBaja("jugador");
+                    DarDeBajaJugador();
                     break;
                 case "5":
                     ListarEquipos();
@@ -54,14 +59,10 @@ namespace GestorClub
                     ListarJugadores();
                     break;
                 case "7":
-                    ActualizarArchivo();
+                    GuardarDatosClub();
                     break;
                 case "8":
-                    ActualizarArchivo();
-                    seguirMenu = false;
-                    break;
-                case "9":
-                    seguirMenu = false;
+                    menuActivo = false;
                     break;
                 default:
                     break;
@@ -75,9 +76,9 @@ namespace GestorClub
 
             for (int i = 1; i < infoClub.Length; i++)
             {
-                string[] equipoYJugadores = infoClub[i].Split(':');
+                string[] equipoYJugadores = infoClub[i].Split(separadorEquipo);
                 string nombreEquipo = equipoYJugadores[0];
-                string[] jugadoresArray = equipoYJugadores[1].Split(',');
+                string[] jugadoresArray = equipoYJugadores[1].Split(separadorJugadores);
 
                 List<string> jugadoresLista = new List<string>(jugadoresArray);
 
@@ -88,70 +89,65 @@ namespace GestorClub
             }
         }
 
-        public static void DarDeAlta(string entrada)
+        public static void DarDeAltaJugador()
         {
-            if (entrada == "equipo")
+            ListarEquipos();
+            Console.WriteLine("Ingrese el nombre del equipo en el que desea dar de alta un jugador:");
+            string equipo = Console.ReadLine();
+
+            if (paresEquipoJugadores.ContainsKey(equipo))
             {
-                Console.WriteLine("Ingrese el nombre del equipo que desea dar de alta");
-                string equipo = Console.ReadLine();
+                Console.WriteLine("Ingrese el nombre del jugador a dar de alta:");
+                string jugador = Console.ReadLine();
 
-                if (!paresEquipoJugadores.ContainsKey(equipo))
-                {
-                    paresEquipoJugadores.Add(equipo, new List<string>());
-                    Console.WriteLine($"El {equipo} ha sido dado de alta.");
-                }
-                else
-                    Console.WriteLine($"El {equipo} ya existe.");
+                paresEquipoJugadores[equipo].Add(jugador);
+                Console.WriteLine($"El jugador {jugador} ha sido dado de alta en el {equipo}.");
             }
-
-            else if (entrada == "jugador")
-            {
-                ListarEquipos();
-                Console.WriteLine("Ingrese el nombre del equipo en el que desea dar de alta un jugador:");
-                string equipo = Console.ReadLine();
-
-                if (paresEquipoJugadores.ContainsKey(equipo))
-                {
-                    Console.WriteLine("Ingrese el nombre del jugador a dar de alta:");
-                    string jugador = Console.ReadLine();
-
-                    paresEquipoJugadores[equipo].Add(jugador);
-                    Console.WriteLine($"El jugador {jugador} ha sido dado de alta en el {equipo}.");
-                }
-                else
-                    Console.WriteLine("El equipo no existe.");
-            }
+            else
+                Console.WriteLine("El equipo no existe.");
         }
 
-        public static void DarDeBaja(string entrada)
+        public static void DarDeAltaEquipo()
         {
-            if (entrada == "equipo")
+            Console.WriteLine("Ingrese el nombre del equipo que desea dar de alta");
+            string equipo = Console.ReadLine();
+
+            if (!paresEquipoJugadores.ContainsKey(equipo))
             {
-                ListarEquipos();
-                Console.WriteLine("Ingrese el nombre del equipo que desea dar de baja");
-                string equipo = Console.ReadLine();
-
-                paresEquipoJugadores.Remove(equipo);
-                Console.WriteLine($"El {equipo} ha sido dado de baja.");
+                paresEquipoJugadores.Add(equipo, new List<string>());
+                Console.WriteLine($"El {equipo} ha sido dado de alta.");
             }
-            else if (entrada == "jugador")
+            else
+                Console.WriteLine($"El {equipo} ya existe.");
+        }
+
+        public static void DarDeBajaJugador()
+        {
+            ListarEquipos();
+            Console.WriteLine("Ingrese el nombre del equipo en el que desea dar de baja un jugador:");
+            string equipo = Console.ReadLine();
+
+            if (paresEquipoJugadores.ContainsKey(equipo))
             {
-                ListarEquipos();
-                Console.WriteLine("Ingrese el nombre del equipo en el que desea dar de baja un jugador:");
-                string equipo = Console.ReadLine();
+                ListarJugadores();
+                Console.WriteLine("Ingrese el nombre del jugador a dar de baja:");
+                string jugador = Console.ReadLine();
 
-                if (paresEquipoJugadores.ContainsKey(equipo))
-                {
-                    ListarJugadores();
-                    Console.WriteLine("Ingrese el nombre del jugador a dar de baja:");
-                    string jugador = Console.ReadLine();
-
-                    paresEquipoJugadores[equipo].Remove(jugador);
-                    Console.WriteLine($"El jugador {jugador} ha sido dado de baja en el {equipo}.");
-                }
-                else
-                    Console.WriteLine("El equipo no existe.");
+                paresEquipoJugadores[equipo].Remove(jugador);
+                Console.WriteLine($"El jugador {jugador} ha sido dado de baja en el {equipo}.");
             }
+            else
+                Console.WriteLine("El equipo no existe.");
+        }
+
+        public static void DarDeBajaEquipo()
+        {
+            ListarEquipos();
+            Console.WriteLine("Ingrese el nombre del equipo que desea dar de baja");
+            string equipo = Console.ReadLine();
+
+            paresEquipoJugadores.Remove(equipo);
+            Console.WriteLine($"El {equipo} ha sido dado de baja.");
         }
 
         static void ListarEquipos()
@@ -184,7 +180,7 @@ namespace GestorClub
                 Console.WriteLine("El equipo no pertenece a este club.");
         }
 
-        static void ActualizarArchivo()
+        static void GuardarDatosClub()
         {
             using (StreamWriter writer = new StreamWriter("../../FundacionEsplai.txt"))
             {
@@ -196,9 +192,9 @@ namespace GestorClub
                     {
                         jugadoresString += equipo.Value[i];
                         if (i < equipo.Value.Count - 1)
-                            jugadoresString += ",";
+                            jugadoresString += separadorJugadores;
                     }
-                    writer.WriteLine($"{equipo.Key}:{jugadoresString}");
+                    writer.WriteLine($"{equipo.Key}{separadorEquipo}{jugadoresString}");
                 }
             }
             Console.WriteLine("Los cambios se han guardado en el archivo.");
